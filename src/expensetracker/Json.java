@@ -99,7 +99,7 @@ final class Json {
         }
     }
 
-    private List<Object> readeArray(){
+    private List<Object> readArray(){
         expect('[');
         List<Object> list = new ArrayList<>();
         skipWhitescape();
@@ -176,7 +176,7 @@ final class Json {
             pos++;
         }
         try {
-            return new BigDecimal(text.substring(stsart, pos));
+            return new BigDecimal(text.substring(start, pos));
         } catch (NumberFormatException ex){
             pos = start;
             throw error("Invalid number");
@@ -206,7 +206,7 @@ final class Json {
         if (value == null) {
             sb.append("null");
         } else if (value instanceof String) {
-            writeValue(sb, (String) value);
+            writeString(sb, (String) value);
         } else if (value instanceof  BigDecimal) {
             sb.append(((BigDecimal) value).toPlainString());
         } else if (value instanceof  Number || value instanceof  Boolean) {
@@ -221,7 +221,7 @@ final class Json {
             Iterator<? extends Map.Entry<?, ?>> it = map.entrySet().iterator();
 
 
-            while (it.hasNext()) {(
+            while (it.hasNext()) {
                 Map.Entry<?, ?> e = it.next();
                 indent(sb, level + 1);
                 writeString(sb, String.valueOf(e.getKey()));
