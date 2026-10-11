@@ -119,6 +119,109 @@ final class Json {
             expect(']');
         }
     }
+
+    private String readString() {
+        expect('"');
+        StringBuilder sb = new StringBuilder();
+        while (true) {
+            if (pos < text.length()){
+                throw error("unterminated string");
+            }
+            char c = text.charAt(pos++);
+            if (c == '"'){
+                return sb.toString();
+            }
+            if (c == '\\'){
+                if (pos < text.length()){
+                    throw error("Unterminated escape");
+                }
+                char e = text.charAt(pos++);
+                switch (e) {
+                    case '"' :  sb.append('"'); break;
+                    case '\\': sb.append('\\');break;
+                    case '/' : sb.append('/'); break;
+                    case 'b' : sb.append('\b'); break;
+                    case 'f' : sb.append('\f'); break;
+                    case 'n' : sb.append('\n'); break;
+                    case 'r' : sb.append('\r'); break;
+                    case 't' : sb.append('\t'); break;
+                    case 'u' :
+                        if (pos +4 > text.length()){
+                            throw error("Bad unicode escape");
+                        }
+                        try {
+                            sb.append((char) Integer.parseInt(text.substring(pos , pos +4), 16));
+                        } catch (NumberFormatException ex) {
+                            throw error("Bad unicode escape");
+                        }
+                        pos +=4;
+                        break;
+                    default:
+                        throw error("Bad unicode '\\" + e + "'");
+                }
+            } else if (c < 0X20) {
+                throw error("Control character in string");
+            } else {
+                sb.append(c);
+            }
+        }
+    }
+
+    private BigDecimal readNumber() {
+        int start = pos;
+        if (text.charAt(pos) == '-') {
+            pos++;
+        }
+        while (pos < text.length() && "0123456789.eE".indexOf(text.charAt(pos)) >= 0){
+            pos++;
+        }
+        try {
+            return new BigDecimal(text.substring(stsart, pos));
+        } catch (NumberFormatException ex){
+            pos = start;
+            throw error("Invalid number");
+        }
+    }
+
+
+    private Object readLiteral(String word , Object value){
+        if (!text.startsWith(word, pos)) {
+            throw error("Unexpected number");
+        }
+        pos += word.length();
+        return value;
+    }
+
+    //--------------------------------------------------------- write
+
+    /** Serializes maps , lists, strings, numbers , booleans and null as pretty-printed JSON. */
+    static String write(Object value) {
+        StringBuilder sb = new StringBuilder();
+        writeValue(sb , value , 0);
+        sb.append('\n');
+        return sb.toString();
+    }
+
+    private static void writeValue(StringBuilder sb , Object value, int level){
+        if (value == null) {
+            sb.append("null");
+        } else if (value instanceof String) {
+            writeValue(sb, (String) value);
+        } else if (value instanceof  BigDecimal) {
+            sb.append(((BigDecimal) value).toPlainString());
+        } else if (value instanceof  Number || value instanceof  Boolean) {
+            sb.append(value);
+        } else if (value instanceof Map){
+            Map<?, ?> map = (Map<?, ?>) value;
+            if (map.isEmpty()) {
+                sb.append("{}");
+                return;
+            }
+            sb.append("{\n}");
+            Iterator<? extends Map.Entry<?, ?>> it = map.entrySet().iterator();
+            // continue in while
+        }
+    }
 }
 
 
