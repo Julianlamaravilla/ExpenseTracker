@@ -49,7 +49,7 @@ final class Validation {
             throw  new TrackerException("Description cannot be empty.");
         }
         if (value.length() > 200) {
-            throw new TrackerException("Description is too long(max 200 characters".);
+            throw new TrackerException("Description is too long(max 200 characters.");
         }
 
         return  value;
@@ -90,7 +90,7 @@ final class Validation {
 
     static int month(int value) {
         if ( value < 1 || value > 12 ){
-            throw new Trackerexception("Month must be between 1 and 12.");
+            throw new TrackerException("Month must be between 1 and 12.");
         }
         return value;
     }

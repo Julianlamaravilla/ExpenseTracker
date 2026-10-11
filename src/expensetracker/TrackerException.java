@@ -5,15 +5,15 @@ package expensetracker;
  * Its message is shown to the user as-is, without a stack trace.
  */
 
-public class Trackerexception extends RuntimeException {
+public class TrackerException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public Trackerexception(String message){
+    public TrackerException(String message){
         super(message);
     }
 
-    public Trackerexception(String message, Throwable cause){
+    public TrackerException(String message, Throwable cause){
         super(message, cause);
     }
 }
