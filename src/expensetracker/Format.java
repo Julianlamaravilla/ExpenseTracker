@@ -45,7 +45,7 @@ final class Format {
 
         }
         StringBuilder sb = new StringBuilder();
-        appendRow(sb , row, widths, rightAligned);
+        appendRow(sb , headers, widths, rightAligned);
         for(String[] row : rows) {
             appendRow(sb , row , widths, rightAligned);
         }
@@ -53,5 +53,39 @@ final class Format {
         return sb.toString();
     }
 
-    // missing appendRow() , contains() and repeat()
+    private static void appendRow(StringBuilder sb , String[] cells, int[] widths, int[] rightAligned) {
+        StringBuilder line = new StringBuilder();
+        for (int i = 0; i < cells.length; i++){
+            if (i > 0) {
+                line.append(" ");
+            }
+            String pad = repeat(' ', widths[i] - cells[i].length());
+            line.append(contains(rightAligned, i) ? pad + cells[i] : cells[i] + pad);
+        }
+
+        int end = line.length();
+        while (end > 0 && line.charAt(end - 1) == ' '){
+            end--;
+        }
+
+        sb.append(line, 0, end).append((System.lineSeparator()));
+    }
+
+    private static boolean contains(int[] values, int target){
+        for ( int v : values) {
+            if ( v == target) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static String repeat(char c , int count){
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0 ; i < count; i ++){
+            sb.append(c);
+        }
+        return sb.toString();
+    }
 }
