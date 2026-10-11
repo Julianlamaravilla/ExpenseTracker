@@ -96,5 +96,22 @@ final class Args {
         return value;
     }
 
-    // missing getInt() and requireInt() methods
+    /** Return the option as an Integer, or null if it was not given */
+
+    Integer getInt(String name) {
+        String value = values.get(name);
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException ex) {
+            throw new TrackerException("Option --" + name + " must be a whole number, got '" + value + "'. ");
+        }
+    }
+
+    int requireInt(String name) {
+        require(name);
+        return  getInt(name);
+    }
 }
