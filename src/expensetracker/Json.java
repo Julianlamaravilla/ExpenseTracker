@@ -219,7 +219,87 @@ final class Json {
             }
             sb.append("{\n}");
             Iterator<? extends Map.Entry<?, ?>> it = map.entrySet().iterator();
-            // continue in while
+
+
+            while (it.hasNext()) {(
+                Map.Entry<?, ?> e = it.next();
+                indent(sb, level + 1);
+                writeString(sb, String.valueOf(e.getKey()));
+                sb.append(": ");
+                writeValue(sb, e.getValue() , level + 1);
+                sb.append(it.hasNext() ? ",\n" : "\n");
+            }
+            indent(sb, level);
+            sb.append('}');
+
+        } else if (value instanceof List) {
+            List<?> list = (List<?>) value;
+            if (list.isEmpty()) {
+                sb.append("[]");
+                return;
+            }
+            sb.append("[\n");
+            for(int i = 0; i < list.size(); i++){
+                indent(sb, level + 1);
+                writeValue(sb, list.get(i), level + 1);
+                sb.append(i < list.size() - 1 ? ",\n" : "\n");
+            }
+            indent(sb, level);
+            sb.append(']');
+        } else {
+            throw new IllegalArgumentException("Cannot serialize " + value.getClass().getName());
+        }
+    }
+
+    private static void indent(StringBuilder sb , int level) {
+        for (int i = 0; i < level; i ++){
+            sb.append(" ");
+        }
+    }
+
+    private static void writeString(StringBuilder sb, String s) {
+        sb.append(('"'));
+        for (int i = 0; i < s.length(); i ++){
+            char c = s.charAt(i);
+            switch (c) {
+                case '"' : sb.append("\\\""); break;
+                case '\\' : sb.append("\\\\"); break;
+                case '\n' : sb.append("\\n"); break;
+                case '\r' : sb.append("\\r"); break;
+                case '\t' : sb.append("\\t"); break;
+                default:
+                    if (c < 0X20) {
+                        sb.append(String.format("\\u%04x" , (int) c));
+                    } else {
+                        sb.append(c);
+                    }
+            }
+        }
+        sb.append('"');
+
+    }
+
+    // ------------------------------------------- typed access helpers
+
+    static String asString(Object value , String field) {
+        if (!(value instanceof String)) {
+            throw new IllegalArgumentException("field '" + field + "' must be a string");
+        }
+        return (String) value;
+    }
+
+    static BigDecimal asDecimal(Object value, String field){
+        if (!(value instanceof BigDecimal)) {
+            throw new IllegalArgumentException("field ' " + field + "' must be a number");
+        }
+        return (BigDecimal) value;
+    }
+
+    static int asInt(Object value, String field) {
+        try {
+            return asDecimal(value, field).intValueExact();
+        } catch (ArithmeticException ex) {
+            throw new IllegalArgumentException("field '" + field + " ' must be a whole number");
         }
     }
 }
